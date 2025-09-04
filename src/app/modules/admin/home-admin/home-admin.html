@@ -1,0 +1,292 @@
+<!-- Admin Section Ampliada -->
+<section id="admin" class="py-20 bg-purple-900 text-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="title-font text-4xl font-bold text-white mb-4">
+        Panel de Administración
+      </h2>
+      <p class="text-xl text-purple-200">
+        Gestiona citas, promociones y dinámicas de tu negocio
+      </p>
+    </div>
+
+    <div class="admin-panel rounded-3xl shadow-2xl p-8 text-gray-800">
+      <!-- Botones de secciones - Versión Centrada -->
+      <div class="flex flex-wrap justify-center gap-4 mb-6">
+        <button
+          (click)="showAdminTab('citas')"
+          [class]="
+            activeTab === 'citas'
+              ? 'px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold'
+              : 'px-6 py-3 bg-purple-200 text-purple-800 rounded-xl font-semibold'
+          "
+        >
+          Citas
+        </button>
+        <button
+          (click)="showAdminTab('agendar')"
+          [class]="
+            activeTab === 'agendar'
+              ? 'px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold'
+              : 'px-6 py-3 bg-purple-200 text-purple-800 rounded-xl font-semibold'
+          "
+        >
+          Agendar Cita
+        </button>
+        <button
+          (click)="showAdminTab('dinamicas')"
+          [class]="
+            activeTab === 'dinamicas'
+              ? 'px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold'
+              : 'px-6 py-3 bg-purple-200 text-purple-800 rounded-xl font-semibold'
+          "
+        >
+          Dinámicas
+        </button>
+        <button
+          (click)="showAdminTab('estadisticas')"
+          [class]="
+            activeTab === 'estadisticas'
+              ? 'px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold'
+              : 'px-6 py-3 bg-purple-200 text-purple-800 rounded-xl font-semibold'
+          "
+        >
+          Estadísticas
+        </button>
+      </div>
+
+      <!-- Sección Citas -->
+      <div
+        id="citas"
+        class="admin-tab-content"
+        [class.hidden]="activeTab !== 'citas'"
+      >
+        <h3 class="text-2xl font-bold mb-6">Citas Agendadas</h3>
+        <div id="citasList" class="space-y-4">
+          <div
+            *ngFor="let cita of citas; let i = index"
+            class="flex justify-between items-center p-4 bg-purple-50 rounded-xl text-gray-800"
+          >
+            <div>
+              <h4 class="font-semibold">{{ cita.name }}</h4>
+              <p class="text-sm">
+                {{ cita.service }} - {{ cita.date }} {{ cita.time }}
+              </p>
+            </div>
+            <div class="flex space-x-2">
+              <button
+                (click)="confirmCita(i)"
+                class="px-4 py-2 bg-green-500 text-white rounded-lg"
+              >
+                Confirmar
+              </button>
+              <button
+                (click)="deleteCita(i)"
+                class="px-4 py-2 bg-red-500 text-white rounded-lg"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección Agendar Cita -->
+      <div
+        id="agendar"
+        class="admin-tab-content"
+        [class.hidden]="activeTab !== 'agendar'"
+      >
+        <h3 class="text-2xl font-bold mb-6">Agendar Cita Manualmente</h3>
+        <form
+          (ngSubmit)="onManualAppointmentSubmit()"
+          #manualAppointmentForm="ngForm"
+          class="space-y-6 bg-white p-6 rounded-2xl text-gray-800"
+        >
+          <div class="grid md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-semibold mb-2"
+                >Nombre completo</label
+              >
+              <input
+                type="text"
+                name="adminName"
+                [(ngModel)]="newCita.name"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-semibold mb-2">Teléfono</label>
+              <input
+                type="tel"
+                name="adminPhone"
+                [(ngModel)]="newCita.phone"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl"
+              />
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">Servicio</label>
+            <select
+              name="adminService"
+              [(ngModel)]="newCita.service"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl"
+            >
+              <option value="">Selecciona un servicio</option>
+              <option value="manicure">Manicure</option>
+              <option value="uñas-acrilicas">Uñas acrílicas</option>
+              <option value="extensiones">Extensiones de pestañas</option>
+              <option value="facial">Tratamiento facial</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">Fecha</label>
+            <input
+              type="date"
+              name="adminDate"
+              [(ngModel)]="newCita.date"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">Hora</label>
+            <input
+              type="time"
+              name="adminTime"
+              [(ngModel)]="newCita.time"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl"
+            />
+          </div>
+          <div class="text-center">
+            <button
+              type="submit"
+              class="gradient-bg text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+            >
+              Agendar
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Sección Dinámicas -->
+      <div
+        id="dinamicas"
+        class="admin-tab-content"
+        [class.hidden]="activeTab !== 'dinamicas'"
+      >
+        <h3 class="text-2xl font-bold mb-6">Subir Dinámicas</h3>
+        <form
+          (ngSubmit)="onDinamicaSubmit()"
+          #dinamicasForm="ngForm"
+          class="space-y-6 bg-white p-6 rounded-2xl text-gray-800"
+        >
+          <div>
+            <label class="block text-sm font-semibold mb-2"
+              >Título de la dinámica</label
+            >
+            <input
+              type="text"
+              name="dinamicaTitle"
+              [(ngModel)]="newDinamica.title"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">Descripción</label>
+            <textarea
+              name="dinamicaDesc"
+              [(ngModel)]="newDinamica.description"
+              required
+              rows="3"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl"
+            ></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">Tipo</label>
+            <select
+              name="dinamicaType"
+              [(ngModel)]="newDinamica.type"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl"
+            >
+              <option value="">Selecciona tipo</option>
+              <option value="rifa">Rifa</option>
+              <option value="sorteo">Sorteo</option>
+              <option value="descuento">Descuento</option>
+            </select>
+          </div>
+          <div class="text-center">
+            <button
+              type="submit"
+              class="gradient-bg text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+            >
+              Subir Dinámica
+            </button>
+          </div>
+        </form>
+        <div class="mt-6">
+          <h4 class="font-bold text-purple-800 mb-4">Dinámicas Activas</h4>
+          <div id="dinamicasList" class="space-y-4">
+            <div
+              *ngFor="let dinamica of dinamicas; let i = index"
+              class="p-4 bg-purple-100 rounded-xl flex justify-between items-center"
+            >
+              <div>
+                <h4 class="font-semibold text-purple-800">
+                  {{ dinamica.title }}
+                </h4>
+                <p class="text-gray-800">
+                  {{ dinamica.description }} - {{ dinamica.type }}
+                </p>
+              </div>
+              <button
+                (click)="deleteDinamica(i)"
+                class="px-4 py-2 bg-red-500 text-white rounded-lg"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección Estadísticas -->
+      <div
+        id="estadisticas"
+        class="admin-tab-content"
+        [class.hidden]="activeTab !== 'estadisticas'"
+      >
+        <h3 class="text-2xl font-bold mb-6">Estadísticas del Negocio</h3>
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="bg-purple-100 p-6 rounded-xl text-center">
+            <div id="statCitas" class="text-3xl font-bold text-purple-800 mb-2">
+              {{ citas.length }}
+            </div>
+            <div class="text-purple-600">Citas Totales</div>
+          </div>
+          <div class="bg-purple-100 p-6 rounded-xl text-center">
+            <div id="statDin" class="text-3xl font-bold text-purple-800 mb-2">
+              {{ dinamicas.length }}
+            </div>
+            <div class="text-purple-600">Dinámicas Activas</div>
+          </div>
+          <div class="bg-purple-100 p-6 rounded-xl text-center">
+            <div
+              id="statPendientes"
+              class="text-3xl font-bold text-purple-800 mb-2"
+            >
+              {{ citas.length }}
+            </div>
+            <div class="text-purple-600">Citas Pendientes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

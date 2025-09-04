@@ -1,0 +1,201 @@
+ <!-- Additional Appointment Info -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
+    <div
+      class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-3xl p-8 md:p-12"
+    >
+      <h3
+        class="title-font text-3xl font-bold text-purple-900 mb-6 text-center"
+      >
+        Proceso de Reserva
+      </h3>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div
+            class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <span class="text-white font-bold text-xl">1</span>
+          </div>
+          <h4 class="text-xl font-semibold text-purple-800 mb-2">Reserva</h4>
+          <p class="text-gray-700">
+            Completa nuestro formulario en línea o llámanos directamente para
+            agendar tu cita.
+          </p>
+        </div>
+        <div class="text-center">
+          <div
+            class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <span class="text-white font-bold text-xl">2</span>
+          </div>
+          <h4 class="text-xl font-semibold text-purple-800 mb-2">Confirma</h4>
+          <p class="text-gray-700">
+            Te contactaremos para confirmar los detalles de tu servicio y
+            responder cualquier pregunta.
+          </p>
+        </div>
+        <div class="text-center">
+          <div
+            class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <span class="text-white font-bold text-xl">3</span>
+          </div>
+          <h4 class="text-xl font-semibold text-purple-800 mb-2">Disfruta</h4>
+          <p class="text-gray-700">
+            Relájate y disfruta de tu experiencia de belleza premium con
+            nuestros expertos.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+<section id="citas" class="py-20 bg-white">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="title-font text-4xl font-bold text-purple-900 mb-4">
+        Agenda tu Cita
+      </h2>
+      <p class="text-xl text-gray-600">
+        Reserva tu servicio y vive la experiencia Luxury Beauty
+      </p>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-2xl p-8">
+      <form
+        [formGroup]="appointmentForm"
+        (ngSubmit)="onSubmitAppointment($event)"
+        class="space-y-6"
+      >
+        <!-- Nombre -->
+        <div>
+          <label class="block text-sm font-semibold text-purple-800 mb-2"
+            >Nombre completo</label
+          >
+          <input
+            type="text"
+            formControlName="nombre"
+            class="w-full px-4 py-3 border rounded-xl"
+            [class.border-red-500]="
+              appointmentForm.get('nombre')?.invalid &&
+              appointmentForm.get('nombre')?.touched
+            "
+          />
+          <small
+            *ngIf="
+              appointmentForm.get('nombre')?.invalid &&
+              appointmentForm.get('nombre')?.touched
+            "
+            class="text-red-500"
+          >
+            Nombre requerido (mínimo 3 caracteres).
+          </small>
+        </div>
+
+        <!-- Teléfono -->
+        <div>
+          <label class="block text-sm font-semibold text-purple-800 mb-2"
+            >Número de Teléfono</label
+          >
+          <input
+            type="tel"
+            formControlName="telefono"
+            maxlength="10"
+            class="w-full px-4 py-3 border rounded-xl"
+            (keydown)="validateNumber($event)"
+            [class.border-red-500]="
+              appointmentForm.get('telefono')?.invalid &&
+              appointmentForm.get('telefono')?.touched
+            "
+          />
+        </div>
+
+        <!-- Servicio -->
+        <div>
+          <label class="block text-sm font-semibold text-purple-800 mb-2"
+            >Servicio</label
+          >
+          <select
+            formControlName="servicio"
+            class="w-full px-4 py-3 border rounded-xl"
+          >
+            <option value="">Selecciona un servicio</option>
+            <option value="Manicure">Manicure</option>
+            <option value="Uñas Acrílicas">Uñas Acrílicas</option>
+            <option value="Extensiones de pestañas">
+              Extensiones de pestañas
+            </option>
+            <option value="Tratamiento facial">Tratamiento facial</option>
+          </select>
+        </div>
+
+        <!-- Fecha -->
+        <div>
+          <label class="block text-sm font-semibold text-purple-800 mb-2"
+            >Fecha</label
+          >
+          <div class="grid grid-cols-7 gap-2 bg-purple-50 p-4 rounded-xl">
+            <div
+              *ngFor="let dayObj of daysInMonth"
+              (click)="selectDate(dayObj)"
+              [ngClass]="{
+                'cursor-pointer hover:bg-purple-200': !dayObj.isPast,
+                'bg-purple-600 text-white':
+                  selectedDate?.getDate() === dayObj.day,
+                'text-gray-400': dayObj.isPast
+              }"
+              class="calendar-day text-center p-2 rounded-lg border"
+            >
+              {{ dayObj.day }}
+            </div>
+          </div>
+          <small *ngIf="!selectedDate" class="text-red-500"
+            >Selecciona una fecha válida</small
+          >
+        </div>
+
+        <!-- Hora -->
+        <div>
+          <label class="block text-sm font-semibold text-purple-800 mb-2"
+            >Hora</label
+          >
+          <select
+            formControlName="hora"
+            class="w-full px-4 py-3 border rounded-xl"
+          >
+            <option value="">Selecciona una hora</option>
+            <option value="09:00">09:00 AM</option>
+            <option value="10:00">10:00 AM</option>
+            <option value="11:00">11:00 AM</option>
+            <option value="12:00">12:00 PM</option>
+            <option value="13:00">01:00 PM</option>
+            <option value="14:00">02:00 PM</option>
+            <option value="15:00">03:00 PM</option>
+            <option value="16:00">04:00 PM</option>
+            <option value="17:00">05:00 PM</option>
+          </select>
+        </div>
+
+        <!-- Notas -->
+        <div>
+          <label class="block text-sm font-semibold text-purple-800 mb-2"
+            >Notas adicionales</label
+          >
+          <textarea
+            formControlName="notas"
+            class="w-full px-4 py-3 border rounded-xl"
+            rows="3"
+            placeholder="Especificaciones especiales o alergias..."
+          ></textarea>
+        </div>
+
+        <!-- Botón -->
+        <button
+          type="submit"
+          class="w-full gradient-bg text-white py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+        >
+          Confirmar Cita
+        </button>
+      </form>
+    </div>
+  </div>
+
+</section>
