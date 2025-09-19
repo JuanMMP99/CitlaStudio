@@ -1,16 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { ApiService } from '../../../../../api.service';
+
 
 interface Cita {
+  id?: number;
   name: string;
   phone: string;
   service: string;
   date: string;
   time: string;
+  confirmed?: boolean;
 }
 
 interface Dinamica {
+  id?: number;
   title: string;
   description: string;
   type: string;
@@ -41,56 +46,68 @@ export class HomeAdmin implements OnInit {
     type: ''
   };
 
-  constructor() { }
+  private apiService = inject(ApiService);
 
   ngOnInit(): void {
-    // Cargar datos iniciales si es necesario
+    this.loadCitas();
+    this.loadDinamicas();
+  }
+
+  loadCitas(): void {
+    this.apiService.getCitas().subscribe(data => {
+      this.citas = data;
+    });
+  }
+
+  loadDinamicas(): void {
+    this.apiService.getDinamicas().subscribe(data => {
+      this.dinamicas = data;
+    });
   }
 
   showAdminTab(tabId: string): void {
     this.activeTab = tabId;
   }
 
-  confirmCita(index: number): void {
-    alert(`Cita de ${this.citas[index].name} confirmada`);
-    // Aquí puedes agregar lógica adicional para cambiar el estado de la cita
+  confirmCita(cita: Cita): void {
+    if (!cita.id) return;
+    this.apiService.confirmCita(cita.id).subscribe(() => {
+      alert(`Cita de ${cita.name} confirmada`);
+      cita.confirmed = true;
+    });
   }
 
   deleteCita(index: number): void {
-    this.citas.splice(index, 1);
+    const citaId = this.citas[index].id;
+    if (!citaId) return;
+    this.apiService.deleteCita(citaId).subscribe(() => {
+      this.citas.splice(index, 1);
+      alert('Cita eliminada.');
+    });
   }
 
   onManualAppointmentSubmit(): void {
-    // Agregar la nueva cita
-    this.citas.push({...this.newCita});
-    
-    // Resetear el formulario
-    this.newCita = {
-      name: '',
-      phone: '',
-      service: '',
-      date: '',
-      time: ''
-    };
-    
-    alert('Cita agregada con éxito');
+    this.apiService.addCita(this.newCita).subscribe(citaGuardada => {
+      this.citas.unshift(citaGuardada); // Agrega al inicio de la lista
+      this.newCita = { name: '', phone: '', service: '', date: '', time: '' };
+      alert('Cita agregada con éxito');
+    });
   }
 
   deleteDinamica(index: number): void {
-    this.dinamicas.splice(index, 1);
+    const dinamicaId = this.dinamicas[index].id;
+    if (!dinamicaId) return;
+    this.apiService.deleteDinamica(dinamicaId).subscribe(() => {
+      this.dinamicas.splice(index, 1);
+      alert('Dinámica eliminada.');
+    });
   }
 
   onDinamicaSubmit(): void {
-    // Agregar la nueva dinámica
-    this.dinamicas.push({...this.newDinamica});
-    
-    // Resetear el formulario
-    this.newDinamica = {
-      title: '',
-      description: '',
-      type: ''
-    };
-    
-    alert('Dinámica agregada con éxito');
+    this.apiService.addDinamica(this.newDinamica).subscribe(dinamicaGuardada => {
+      this.dinamicas.unshift(dinamicaGuardada); // Agrega al inicio de la lista
+      this.newDinamica = { title: '', description: '', type: '' };
+      alert('Dinámica agregada con éxito');
+    });
   }
 }

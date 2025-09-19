@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ApiService } from '../../../../../api.service';
 
 @Component({
   selector: 'app-citas-user',
@@ -12,6 +13,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
   styleUrls: ['./citas-user.css']
 })
 export class CitasUser implements OnInit {
+  private apiService = inject(ApiService);
+
   appointmentForm!: FormGroup;
   selectedDate: Date | null = null;
   daysInMonth: { day: number; date: Date; isPast: boolean }[] = [];
@@ -75,23 +78,22 @@ export class CitasUser implements OnInit {
       return;
     }
 
-    const { nombre, telefono, servicio, hora, notas } = this.appointmentForm.value;
-    const fecha = this.selectedDate.toLocaleDateString('es-MX');
+    const { nombre, telefono, servicio, hora } = this.appointmentForm.value;
+    // Formateamos la fecha a YYYY-MM-DD para consistencia con la base de datos
+    const fecha = this.selectedDate.toISOString().split('T')[0]; 
 
-const message =
-  ` *Nueva cita:*\n\n` +
-  ` *Nombre:* ${nombre}\n` +
-  ` *Teléfono:* ${telefono}\n` +
-  ` *Servicio:* ${servicio}\n` +
-  ` *Fecha:* ${fecha}\n` +
-  ` *Hora:* ${hora}\n` +
-  ` *Notas:* ${notas || 'Ninguna'}`;
-  
+    const nuevaCita = {
+      name: nombre,
+      phone: telefono,
+      service: servicio,
+      date: fecha,
+      time: hora
+    };
 
-const whatsappUrl = `https://wa.me/529512563129?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-
-    this.appointmentForm.reset();
-    this.selectedDate = null;
+    this.apiService.addCita(nuevaCita).subscribe(() => {
+      alert('¡Cita agendada con éxito! Te contactaremos pronto para confirmar.');
+      this.appointmentForm.reset();
+      this.selectedDate = null;
+    });
   }
 }

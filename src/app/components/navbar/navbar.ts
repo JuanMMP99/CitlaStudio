@@ -2,10 +2,14 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-navbar',
-  imports: [],
+  standalone: true, // si usas standalone components
   templateUrl: './navbar.html',
-  styleUrl: './navbar.css'
+  styleUrls: ['./navbar.css']
 })
 export class Navbar {
+  mobileMenuOpen = false;
 
+  toggleMenu() {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
 }

@@ -5,6 +5,7 @@ import { ServiciosUser } from './modules/user/servicios-user/servicios-user';
 import { GaleriaUser } from './modules/user/galeria-user/galeria-user';
 import { CitasUser } from './modules/user/citas-user/citas-user';
 import { ContactanosUser } from './modules/user/contactanos-user/contactanos-user';
+import { VisitanosUser } from './modules/user/visitanos-user/visitanos-user';
 
 export const routes: Routes = [
 { path: '', component: HomeUser},
@@ -15,6 +16,7 @@ export const routes: Routes = [
 { path: 'galeria', component: GaleriaUser},
 { path: 'agendar-cita', component: CitasUser},
 { path: 'contactanos', component: ContactanosUser},
+{ path: 'visitanos', component: VisitanosUser},
 
 { path: '**', redirectTo: '' }   
 ];
