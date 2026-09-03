@@ -1,0 +1,16 @@
+# Dependencias
+node_modules/
+.npm/
+
+# Build y distribución
+dist/
+.angular/
+
+# Archivos de entorno local
+.env
+.env.local
+.env.production
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
