@@ -1,1 +1,42 @@
-<p>dinamicas-user works!</p>
+<section id="dinamicas" class="py-20 bg-purple-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="title-font text-4xl font-bold text-purple-900 mb-4">
+        Dinámicas y Promociones
+      </h2>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        Sorteos, rifas y descuentos activos por tiempo limitado.
+      </p>
+    </div>
+
+    <div *ngIf="cargando" class="text-center text-purple-600">
+      Cargando promociones...
+    </div>
+
+    <div *ngIf="error" class="text-center text-red-500">
+      No se pudieron cargar las dinámicas en este momento.
+    </div>
+
+    <div *ngIf="!cargando && !error && dinamicas.length === 0" class="text-center text-gray-500">
+      Por ahora no hay dinámicas activas. ¡Vuelve pronto!
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div
+        *ngFor="let d of dinamicas"
+        class="bg-white p-8 rounded-2xl shadow-lg"
+      >
+        <div
+          class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6"
+        >
+          <i class="fas {{ iconoPorTipo(d.tipo) }} text-white text-2xl"></i>
+        </div>
+        <span class="inline-block text-xs font-semibold uppercase tracking-wide text-purple-600 mb-2">
+          {{ d.tipo }}
+        </span>
+        <h3 class="text-2xl font-bold text-purple-800 mb-4">{{ d.titulo }}</h3>
+        <p class="text-gray-600">{{ d.descripcion }}</p>
+      </div>
+    </div>
+  </div>
+</section>

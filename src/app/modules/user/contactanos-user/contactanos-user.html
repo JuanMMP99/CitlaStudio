@@ -144,15 +144,27 @@
       >
         Envíanos un mensaje
       </h3>
-      <form class="grid md:grid-cols-2 gap-6">
+
+      <!-- Mensaje de éxito -->
+      <div *ngIf="mensajeExito" class="mb-6 p-4 rounded-xl bg-green-100 text-green-800 font-medium">
+        {{ mensajeExito }}
+      </div>
+
+      <!-- Errores del backend -->
+      <div *ngIf="erroresBackend.length" class="mb-6 p-4 rounded-xl bg-red-100 text-red-700">
+        <p *ngFor="let err of erroresBackend">{{ err }}</p>
+      </div>
+
+      <form [formGroup]="contactForm" (ngSubmit)="onSubmitContact($event)" class="grid md:grid-cols-2 gap-6">
         <div>
           <label class="block text-sm font-semibold text-purple-800 mb-2"
             >Nombre completo</label
           >
           <input
             type="text"
-            required
+            formControlName="nombre"
             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            [class.border-red-500]="contactForm.get('nombre')?.invalid && contactForm.get('nombre')?.touched"
           />
         </div>
         <div>
@@ -161,8 +173,9 @@
           >
           <input
             type="email"
-            required
+            formControlName="correo"
             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            [class.border-red-500]="contactForm.get('correo')?.invalid && contactForm.get('correo')?.touched"
           />
         </div>
         <div class="md:col-span-2">
@@ -171,7 +184,7 @@
           >
           <input
             type="text"
-            required
+            formControlName="asunto"
             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           />
         </div>
@@ -180,18 +193,20 @@
             >Mensaje</label
           >
           <textarea
-            required
+            formControlName="mensaje"
             rows="4"
             class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             placeholder="Cuéntanos cómo podemos ayudarte..."
+            [class.border-red-500]="contactForm.get('mensaje')?.invalid && contactForm.get('mensaje')?.touched"
           ></textarea>
         </div>
         <div class="md:col-span-2 text-center">
           <button
             type="submit"
-            class="gradient-bg text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+            [disabled]="enviando"
+            class="gradient-bg text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-60"
           >
-            Enviar Mensaje
+            {{ enviando ? 'Enviando...' : 'Enviar Mensaje' }}
           </button>
         </div>
       </form>

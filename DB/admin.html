@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Citla Studio - Administración</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; }
+    .tab-btn.active { background-color: #7c3aed; color: white; }
+    .tab-btn { background-color: #ede9fe; color: #5b21b6; }
+    .spinner {
+      border: 3px solid #ede9fe; border-top: 3px solid #7c3aed;
+      border-radius: 50%; width: 22px; height: 22px; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="bg-purple-50 min-h-screen">
+
+  <!-- ===================== LOGIN ===================== -->
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center px-4">
+    <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-sm text-center">
+      <h1 class="text-2xl font-bold text-purple-900 mb-2">Citla Studio</h1>
+      <p class="text-gray-500 mb-6">Panel de administración</p>
+      <input id="loginPassword" type="password" placeholder="Contraseña"
+        class="w-full px-4 py-3 border border-gray-300 rounded-xl mb-4 focus:ring-2 focus:ring-purple-500"
+        onkeydown="if(event.key==='Enter') login()">
+      <button onclick="login()" class="w-full bg-purple-700 text-white py-3 rounded-xl font-semibold hover:bg-purple-800">
+        Ingresar
+      </button>
+      <p id="loginError" class="text-red-500 text-sm mt-3 hidden">Contraseña incorrecta.</p>
+    </div>
+  </div>
+
+  <!-- ===================== PANEL ===================== -->
+  <div id="panel" class="hidden">
+    <header class="bg-purple-900 text-white py-6 px-4 sm:px-8 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold">Citla Studio</h1>
+        <p class="text-purple-200 text-sm">Panel de administración</p>
+      </div>
+      <button onclick="logout()" class="bg-purple-700 hover:bg-purple-600 px-4 py-2 rounded-lg text-sm">Cerrar sesión</button>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-8 py-8">
+
+      <!-- Estadísticas -->
+      <div id="statsGrid" class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8"></div>
+
+      <!-- Tabs -->
+      <div class="flex flex-wrap gap-3 mb-6">
+        <button class="tab-btn active px-5 py-2 rounded-xl font-semibold" data-tab="citas" onclick="showTab('citas')">Citas</button>
+        <button class="tab-btn px-5 py-2 rounded-xl font-semibold" data-tab="agendar" onclick="showTab('agendar')">Agendar Manual</button>
+        <button class="tab-btn px-5 py-2 rounded-xl font-semibold" data-tab="servicios" onclick="showTab('servicios')">Servicios</button>
+        <button class="tab-btn px-5 py-2 rounded-xl font-semibold" data-tab="dinamicas" onclick="showTab('dinamicas')">Dinámicas</button>
+        <button class="tab-btn px-5 py-2 rounded-xl font-semibold" data-tab="mensajes" onclick="showTab('mensajes')">Mensajes</button>
+      </div>
+
+      <div id="globalLoading" class="hidden flex items-center gap-3 text-purple-700 mb-4">
+        <div class="spinner"></div> Cargando...
+      </div>
+
+      <!-- ===== TAB: CITAS ===== -->
+      <section id="tab-citas" class="tab-content bg-white rounded-2xl shadow p-6">
+        <h2 class="text-xl font-bold text-purple-900 mb-4">Citas Agendadas</h2>
+        <div class="flex gap-2 mb-4">
+          <select id="filtroEstado" onchange="renderCitas()" class="border rounded-lg px-3 py-2 text-sm">
+            <option value="">Todos los estados</option>
+            <option value="Pendiente">Pendiente</option>
+            <option value="Confirmada">Confirmada</option>
+            <option value="Cancelada">Cancelada</option>
+          </select>
+        </div>
+        <div id="citasList" class="space-y-3"></div>
+      </section>
+
+      <!-- ===== TAB: AGENDAR MANUAL ===== -->
+      <section id="tab-agendar" class="tab-content hidden bg-white rounded-2xl shadow p-6">
+        <h2 class="text-xl font-bold text-purple-900 mb-4">Agendar Cita Manualmente</h2>
+        <form onsubmit="crearCitaManual(event)" class="grid md:grid-cols-2 gap-4">
+          <input required id="mNombre" placeholder="Nombre completo" class="border rounded-xl px-4 py-3">
+          <input required id="mTelefono" placeholder="Teléfono (10 dígitos)" maxlength="10" class="border rounded-xl px-4 py-3">
+          <input required id="mCorreo" type="email" placeholder="Correo" class="border rounded-xl px-4 py-3">
+          <select required id="mServicio" class="border rounded-xl px-4 py-3"></select>
+          <input required id="mFecha" type="date" class="border rounded-xl px-4 py-3">
+          <input required id="mHora" type="time" class="border rounded-xl px-4 py-3">
+          <textarea id="mNotas" placeholder="Notas" class="border rounded-xl px-4 py-3 md:col-span-2"></textarea>
+          <button class="md:col-span-2 bg-purple-700 text-white py-3 rounded-xl font-semibold hover:bg-purple-800">
+            Agendar cita
+          </button>
+        </form>
+        <p id="agendarMsg" class="mt-3 text-sm"></p>
+      </section>
+
+      <!-- ===== TAB: SERVICIOS ===== -->
+      <section id="tab-servicios" class="tab-content hidden bg-white rounded-2xl shadow p-6">
+        <h2 class="text-xl font-bold text-purple-900 mb-4">Servicios (usados en el formulario de citas)</h2>
+        <form onsubmit="crearServicio(event)" class="flex flex-wrap gap-3 mb-6">
+          <input required id="sNombre" placeholder="Nombre del servicio" class="border rounded-xl px-4 py-2 flex-1 min-w-[180px]">
+          <input required id="sDuracion" type="number" min="15" step="15" placeholder="Duración (min)" class="border rounded-xl px-4 py-2 w-40">
+          <button class="bg-purple-700 text-white px-5 py-2 rounded-xl font-semibold hover:bg-purple-800">Agregar</button>
+        </form>
+        <div id="serviciosList" class="space-y-2"></div>
+      </section>
+
+      <!-- ===== TAB: DINÁMICAS ===== -->
+      <section id="tab-dinamicas" class="tab-content hidden bg-white rounded-2xl shadow p-6">
+        <h2 class="text-xl font-bold text-purple-900 mb-4">Dinámicas y Promociones</h2>
+        <form onsubmit="crearDinamica(event)" class="space-y-3 mb-6">
+          <input required id="dTitulo" placeholder="Título" class="border rounded-xl px-4 py-3 w-full">
+          <textarea required id="dDescripcion" placeholder="Descripción" class="border rounded-xl px-4 py-3 w-full"></textarea>
+          <select id="dTipo" class="border rounded-xl px-4 py-3 w-full">
+            <option value="rifa">Rifa</option>
+            <option value="sorteo">Sorteo</option>
+            <option value="descuento">Descuento</option>
+          </select>
+          <button class="bg-purple-700 text-white px-5 py-3 rounded-xl font-semibold hover:bg-purple-800">Publicar dinámica</button>
+        </form>
+        <div id="dinamicasList" class="space-y-2"></div>
+      </section>
+
+      <!-- ===== TAB: MENSAJES ===== -->
+      <section id="tab-mensajes" class="tab-content hidden bg-white rounded-2xl shadow p-6">
+        <h2 class="text-xl font-bold text-purple-900 mb-4">Mensajes de Contacto</h2>
+        <div id="mensajesList" class="space-y-2"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    let PASSWORD = sessionStorage.getItem('citla_admin_pw') || '';
+    let CITAS_CACHE = [];
+    let SERVICIOS_CACHE = [];
+    let DINAMICAS_CACHE = [];
+    let MENSAJES_CACHE = [];
+
+    // ---------- LOGIN ----------
+    function login() {
+      const pw = document.getElementById('loginPassword').value;
+      google.script.run
+        .withSuccessHandler(function (ok) {
+          if (ok) {
+            PASSWORD = pw;
+            sessionStorage.setItem('citla_admin_pw', pw);
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('panel').classList.remove('hidden');
+            initPanel();
+          } else {
+            document.getElementById('loginError').classList.remove('hidden');
+          }
+        })
+        .withFailureHandler(function () {
+          document.getElementById('loginError').classList.remove('hidden');
+        })
+        .adminLogin(pw);
+    }
+
+    function logout() {
+      sessionStorage.removeItem('citla_admin_pw');
+      location.reload();
+    }
+
+    if (PASSWORD) {
+      google.script.run.withSuccessHandler(function (ok) {
+        if (ok) {
+          document.getElementById('loginScreen').classList.add('hidden');
+          document.getElementById('panel').classList.remove('hidden');
+          initPanel();
+        }
+      }).adminLogin(PASSWORD);
+    }
+
+    // ---------- TABS ----------
+    function showTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(function (el) { el.classList.add('hidden'); });
+      document.getElementById('tab-' + tab).classList.remove('hidden');
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelector('.tab-btn[data-tab="' + tab + '"]').classList.add('active');
+    }
+
+    function loading(show) {
+      document.getElementById('globalLoading').classList.toggle('hidden', !show);
+    }
+
+    function initPanel() {
+      cargarEstadisticas();
+      cargarCitas();
+      cargarServicios();
+      cargarDinamicas();
+      cargarMensajes();
+    }
+
+    // ---------- ESTADÍSTICAS ----------
+    function cargarEstadisticas() {
+      google.script.run.withSuccessHandler(renderStats).adminGetEstadisticas(PASSWORD);
+    }
+
+    function renderStats(s) {
+      const cards = [
+        ['Citas totales', s.citasTotales],
+        ['Pendientes', s.citasPendientes],
+        ['Confirmadas', s.citasConfirmadas],
+        ['Citas hoy', s.citasHoy],
+        ['Mensajes sin leer', s.mensajesSinLeer]
+      ];
+      document.getElementById('statsGrid').innerHTML = cards.map(function (c) {
+        return '<div class="bg-white rounded-xl shadow p-4 text-center">' +
+          '<div class="text-2xl font-bold text-purple-800">' + c[1] + '</div>' +
+          '<div class="text-xs text-gray-500">' + c[0] + '</div></div>';
+      }).join('');
+    }
+
+    // ---------- CITAS ----------
+    function cargarCitas() {
+      loading(true);
+      google.script.run.withSuccessHandler(function (citas) {
+        CITAS_CACHE = citas;
+        renderCitas();
+        loading(false);
+      }).withFailureHandler(function () { loading(false); }).adminGetCitas(PASSWORD);
+    }
+
+    function renderCitas() {
+      const filtro = document.getElementById('filtroEstado').value;
+      const lista = CITAS_CACHE.filter(function (c) { return !filtro || c.estado === filtro; });
+      const cont = document.getElementById('citasList');
+
+      if (!lista.length) {
+        cont.innerHTML = '<p class="text-gray-500">No hay citas.</p>';
+        return;
+      }
+
+      cont.innerHTML = lista.map(function (c) {
+        const badge = c.estado === 'Confirmada' ? 'bg-green-100 text-green-700'
+          : c.estado === 'Cancelada' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700';
+        return '<div class="flex flex-wrap justify-between items-center p-4 bg-purple-50 rounded-xl gap-3">' +
+          '<div>' +
+            '<p class="font-semibold text-purple-900">' + c.nombre + ' <span class="text-xs px-2 py-1 rounded-full ' + badge + '">' + c.estado + '</span></p>' +
+            '<p class="text-sm text-gray-600">' + c.servicio + ' · ' + c.fecha + ' ' + c.hora + '</p>' +
+            '<p class="text-sm text-gray-500">' + c.telefono + ' · ' + c.correo + '</p>' +
+            (c.notas ? '<p class="text-sm text-gray-400 italic">' + c.notas + '</p>' : '') +
+          '</div>' +
+          '<div class="flex gap-2">' +
+            (c.estado !== 'Confirmada' ? '<button onclick="cambiarEstado(' + c.id + ',\'Confirmada\')" class="px-3 py-2 bg-green-500 text-white rounded-lg text-sm">Confirmar</button>' : '') +
+            (c.estado !== 'Cancelada' ? '<button onclick="cambiarEstado(' + c.id + ',\'Cancelada\')" class="px-3 py-2 bg-yellow-500 text-white rounded-lg text-sm">Cancelar</button>' : '') +
+            '<button onclick="eliminarCita(' + c.id + ')" class="px-3 py-2 bg-red-500 text-white rounded-lg text-sm">Eliminar</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function cambiarEstado(id, estado) {
+      loading(true);
+      google.script.run.withSuccessHandler(function () { cargarCitas(); cargarEstadisticas(); })
+        .withFailureHandler(function (e) { alert(e.message); loading(false); })
+        .adminActualizarEstadoCita(PASSWORD, id, estado);
+    }
+
+    function eliminarCita(id) {
+      if (!confirm('¿Eliminar esta cita?')) return;
+      loading(true);
+      google.script.run.withSuccessHandler(function () { cargarCitas(); cargarEstadisticas(); })
+        .withFailureHandler(function (e) { alert(e.message); loading(false); })
+        .adminEliminarCita(PASSWORD, id);
+    }
+
+    function crearCitaManual(ev) {
+      ev.preventDefault();
+      const data = {
+        nombre: document.getElementById('mNombre').value,
+        telefono: document.getElementById('mTelefono').value,
+        correo: document.getElementById('mCorreo').value,
+        servicio: document.getElementById('mServicio').value,
+        fecha: document.getElementById('mFecha').value,
+        hora: document.getElementById('mHora').value,
+        notas: document.getElementById('mNotas').value
+      };
+      const msg = document.getElementById('agendarMsg');
+      msg.textContent = '';
+      google.script.run.withSuccessHandler(function (res) {
+        if (res.ok) {
+          msg.className = 'mt-3 text-sm text-green-600';
+          msg.textContent = 'Cita agendada correctamente.';
+          ev.target.reset();
+          cargarCitas();
+          cargarEstadisticas();
+        } else {
+          msg.className = 'mt-3 text-sm text-red-600';
+          msg.textContent = res.errores.join(' ');
+        }
+      }).withFailureHandler(function (e) {
+        msg.className = 'mt-3 text-sm text-red-600';
+        msg.textContent = e.message;
+      }).adminCrearCitaManual(PASSWORD, data);
+    }
+
+    // ---------- SERVICIOS ----------
+    function cargarServicios() {
+      google.script.run.withSuccessHandler(function (servicios) {
+        SERVICIOS_CACHE = servicios;
+        renderServicios();
+        poblarSelectServicios();
+      }).adminGetServicios(PASSWORD);
+    }
+
+    function poblarSelectServicios() {
+      const sel = document.getElementById('mServicio');
+      sel.innerHTML = '<option value="">Selecciona un servicio</option>' +
+        SERVICIOS_CACHE.filter(function (s) { return s.activo; })
+          .map(function (s) { return '<option value="' + s.nombre + '">' + s.nombre + '</option>'; }).join('');
+    }
+
+    function renderServicios() {
+      const cont = document.getElementById('serviciosList');
+      cont.innerHTML = SERVICIOS_CACHE.map(function (s) {
+        return '<div class="flex justify-between items-center p-3 bg-purple-50 rounded-xl">' +
+          '<div><span class="font-semibold">' + s.nombre + '</span> <span class="text-sm text-gray-500">(' + s.duracion + ' min)</span></div>' +
+          '<div class="flex gap-2 items-center">' +
+            '<label class="text-sm flex items-center gap-1"><input type="checkbox" ' + (s.activo ? 'checked' : '') +
+              ' onchange="toggleServicio(' + s.id + ', this.checked)"> Activo</label>' +
+            '<button onclick="eliminarServicio(' + s.id + ')" class="px-3 py-1 bg-red-500 text-white rounded-lg text-sm">Eliminar</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function toggleServicio(id, activo) {
+      google.script.run.withSuccessHandler(cargarServicios).adminActualizarServicio(PASSWORD, id, { activo: activo });
+    }
+
+    function eliminarServicio(id) {
+      if (!confirm('¿Eliminar este servicio?')) return;
+      google.script.run.withSuccessHandler(cargarServicios).adminEliminarServicio(PASSWORD, id);
+    }
+
+    function crearServicio(ev) {
+      ev.preventDefault();
+      const data = { nombre: document.getElementById('sNombre').value, duracion: document.getElementById('sDuracion').value };
+      google.script.run.withSuccessHandler(function () { ev.target.reset(); cargarServicios(); })
+        .adminCrearServicio(PASSWORD, data);
+    }
+
+    // ---------- DINÁMICAS ----------
+    function cargarDinamicas() {
+      google.script.run.withSuccessHandler(function (dinamicas) {
+        DINAMICAS_CACHE = dinamicas;
+        renderDinamicas();
+      }).adminGetDinamicas(PASSWORD);
+    }
+
+    function renderDinamicas() {
+      const cont = document.getElementById('dinamicasList');
+      if (!DINAMICAS_CACHE.length) { cont.innerHTML = '<p class="text-gray-500">Sin dinámicas.</p>'; return; }
+      cont.innerHTML = DINAMICAS_CACHE.map(function (d) {
+        return '<div class="flex justify-between items-center p-4 bg-purple-50 rounded-xl">' +
+          '<div><p class="font-semibold">' + d.titulo + ' <span class="text-xs text-purple-600">(' + d.tipo + ')</span></p>' +
+          '<p class="text-sm text-gray-600">' + d.descripcion + '</p></div>' +
+          '<div class="flex gap-2 items-center">' +
+            '<label class="text-sm flex items-center gap-1"><input type="checkbox" ' + (d.activa ? 'checked' : '') +
+              ' onchange="toggleDinamica(' + d.id + ', this.checked)"> Activa</label>' +
+            '<button onclick="eliminarDinamica(' + d.id + ')" class="px-3 py-1 bg-red-500 text-white rounded-lg text-sm">Eliminar</button>' +
+          '</div></div>';
+      }).join('');
+    }
+
+    function toggleDinamica(id, activa) {
+      google.script.run.withSuccessHandler(cargarDinamicas).adminActualizarDinamica(PASSWORD, id, { activa: activa });
+    }
+
+    function eliminarDinamica(id) {
+      if (!confirm('¿Eliminar esta dinámica?')) return;
+      google.script.run.withSuccessHandler(cargarDinamicas).adminEliminarDinamica(PASSWORD, id);
+    }
+
+    function crearDinamica(ev) {
+      ev.preventDefault();
+      const data = {
+        titulo: document.getElementById('dTitulo').value,
+        descripcion: document.getElementById('dDescripcion').value,
+        tipo: document.getElementById('dTipo').value
+      };
+      google.script.run.withSuccessHandler(function () { ev.target.reset(); cargarDinamicas(); cargarEstadisticas(); })
+        .adminCrearDinamica(PASSWORD, data);
+    }
+
+    // ---------- MENSAJES ----------
+    function cargarMensajes() {
+      google.script.run.withSuccessHandler(function (mensajes) {
+        MENSAJES_CACHE = mensajes;
+        renderMensajes();
+      }).adminGetMensajes(PASSWORD);
+    }
+
+    function renderMensajes() {
+      const cont = document.getElementById('mensajesList');
+      if (!MENSAJES_CACHE.length) { cont.innerHTML = '<p class="text-gray-500">Sin mensajes.</p>'; return; }
+      cont.innerHTML = MENSAJES_CACHE.map(function (m) {
+        return '<div class="p-4 rounded-xl ' + (m.leido ? 'bg-gray-50' : 'bg-purple-50') + '">' +
+          '<div class="flex justify-between">' +
+            '<p class="font-semibold">' + m.nombre + ' <span class="text-sm text-gray-500">(' + m.correo + ')</span></p>' +
+            '<div class="flex gap-2">' +
+              (!m.leido ? '<button onclick="marcarLeido(' + m.id + ')" class="text-sm text-purple-700 underline">Marcar leído</button>' : '') +
+              '<button onclick="eliminarMensaje(' + m.id + ')" class="text-sm text-red-600 underline">Eliminar</button>' +
+            '</div>' +
+          '</div>' +
+          (m.asunto ? '<p class="text-sm font-medium mt-1">' + m.asunto + '</p>' : '') +
+          '<p class="text-sm text-gray-700 mt-1">' + m.mensaje + '</p>' +
+        '</div>';
+      }).join('');
+    }
+
+    function marcarLeido(id) {
+      google.script.run.withSuccessHandler(function () { cargarMensajes(); cargarEstadisticas(); }).adminMarcarMensajeLeido(PASSWORD, id);
+    }
+    function eliminarMensaje(id) {
+      if (!confirm('¿Eliminar este mensaje?')) return;
+      google.script.run.withSuccessHandler(function () { cargarMensajes(); cargarEstadisticas(); }).adminEliminarMensaje(PASSWORD, id);
+    }
+  </script>
+</body>
+</html>
