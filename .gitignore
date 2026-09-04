@@ -2,10 +2,6 @@
 node_modules/
 .npm/
 
-# Build y distribución
-dist/
-.angular/
-
 # Archivos de entorno local
 .env
 .env.local
