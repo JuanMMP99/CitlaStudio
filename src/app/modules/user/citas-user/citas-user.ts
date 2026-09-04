@@ -15,6 +15,15 @@ export class CitasUser implements OnInit {
   selectedDate: Date | null = null;
   daysInMonth: { day: number; date: Date; isPast: boolean }[] = [];
 
+  // Variables para la navegación de meses
+  currentMonthDate: Date = new Date(); // Controla el mes que se está visualizando
+  monthNames: string[] = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+  weekDays: string[] = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+  emptyStartDays: number[] = []; // Para alinear el primer día con el día de la semana correcto
+
   servicios: Servicio[] = [];
   horarios: HorarioSlot[] = [];
 
@@ -62,17 +71,59 @@ export class CitasUser implements OnInit {
     });
   }
 
-  // Generar calendario de este mes
+  // Generar calendario según el mes seleccionado en currentMonthDate
   generateCalendar(): void {
     const today = new Date();
-    const totalDays = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    today.setHours(0, 0, 0, 0); // Normalizar hoy a medianoche
+
+    const year = this.currentMonthDate.getFullYear();
+    const month = this.currentMonthDate.getMonth();
+
+    // Obtener en qué día de la semana cae el primer día del mes (0 = Domingo, 1 = Lunes...)
+    const firstDayOfWeek = new Date(year, month, 1).getDay();
+    this.emptyStartDays = Array(firstDayOfWeek).fill(0);
+
+    // Días totales en el mes
+    const totalDays = new Date(year, month + 1, 0).getDate();
 
     this.daysInMonth = [];
     for (let i = 1; i <= totalDays; i++) {
-      const date = new Date(today.getFullYear(), today.getMonth(), i);
-      const isPast = date <= today; // hoy o antes = bloqueado
+      const date = new Date(year, month, i);
+      date.setHours(0, 0, 0, 0);
+
+      const isPast = date < today; // Días anteriores a hoy quedan bloqueados
       this.daysInMonth.push({ day: i, date, isPast });
     }
+  }
+
+  // Navegar al mes anterior
+  prevMonth(): void {
+    this.currentMonthDate = new Date(
+      this.currentMonthDate.getFullYear(),
+      this.currentMonthDate.getMonth() - 1,
+      1
+    );
+    this.generateCalendar();
+  }
+
+  // Navegar al mes siguiente
+  nextMonth(): void {
+    this.currentMonthDate = new Date(
+      this.currentMonthDate.getFullYear(),
+      this.currentMonthDate.getMonth() + 1,
+      1
+    );
+    this.generateCalendar();
+  }
+
+  // Comprobar si la fecha dada es la misma que la seleccionada
+  isSameDate(date1: Date | null, date2: Date): boolean {
+    if (!date1) return false;
+    return (
+      date1.getFullYear() === date2.getFullYear() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getDate() === date2.getDate()
+    );
   }
 
   private toIsoDate(date: Date): string {
@@ -82,7 +133,6 @@ export class CitasUser implements OnInit {
     return `${y}-${m}-${d}`;
   }
 
-  // Seleccionar día válido y consultar horarios disponibles en el backend
   selectDate(dayObj: { day: number; date: Date; isPast: boolean }): void {
     if (dayObj.isPast) return;
     this.selectedDate = dayObj.date;
@@ -130,7 +180,6 @@ export class CitasUser implements OnInit {
             this.horarios = [];
           } else {
             this.erroresBackend = res.errores || ['No se pudo registrar la cita.'];
-            // Si el horario ya no está disponible, refrescamos la lista
             if (this.selectedDate) {
               this.selectDate({ day: this.selectedDate.getDate(), date: this.selectedDate, isPast: false });
             }

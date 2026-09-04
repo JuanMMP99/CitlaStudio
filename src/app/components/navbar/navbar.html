@@ -14,33 +14,82 @@
         </span>
       </div>
 
+      <!-- Menú Desktop -->
       <div class="hidden md:flex space-x-8">
-        <a
-          href="inicio"
-          class="nav-link text-gray-700 hover:text-purple-600"
+        <a href="inicio" class="nav-link text-gray-700 hover:text-purple-600"
           >Inicio</a
         >
-        <a
-          href="servicios"
-          class="nav-link text-gray-700 hover:text-purple-600"
+        <a href="servicios" class="nav-link text-gray-700 hover:text-purple-600"
           >Servicios</a
         >
         <a href="galeria" class="nav-link text-gray-700 hover:text-purple-600"
           >Galería</a
         >
-        <a href="agendar-cita" class="nav-link text-gray-700 hover:text-purple-600"
+        <a
+          href="agendar-cita"
+          class="nav-link text-gray-700 hover:text-purple-600"
           >Agendar Cita</a
         >
         <a href="dinamicas" class="nav-link text-gray-700 hover:text-purple-600"
           >Promociones</a
         >
-        <a href="contactanos" class="nav-link text-gray-700 hover:text-purple-600"
+        <a
+          href="contactanos"
+          class="nav-link text-gray-700 hover:text-purple-600"
           >Contáctanos</a
         >
       </div>
-      <button class="md:hidden text-purple-600">
+
+      <!-- Botón Hamburguesa -->
+      <button
+        (click)="toggleMenu()"
+        class="md:hidden text-purple-600 focus:outline-none"
+      >
         <i class="fas fa-bars text-2xl"></i>
       </button>
     </div>
+  </div>
+
+  <!-- Menú Mobile -->
+  <div
+    #mobileMenu
+    class="hidden md:hidden bg-white border-t border-gray-100 px-4 pt-2 pb-4 space-y-2"
+  >
+    <a
+      href="inicio"
+      (click)="toggleMenu()"
+      class="block text-gray-700 hover:text-purple-600 py-2"
+      >Inicio</a
+    >
+    <a
+      href="servicios"
+      (click)="toggleMenu()"
+      class="block text-gray-700 hover:text-purple-600 py-2"
+      >Servicios</a
+    >
+    <a
+      href="galeria"
+      (click)="toggleMenu()"
+      class="block text-gray-700 hover:text-purple-600 py-2"
+      >Galería</a
+    >
+    <a
+      href="agendar-cita"
+      (click)="toggleMenu()"
+      class="block text-gray-700 hover:text-purple-600 py-2"
+      >Agendar Cita</a
+    >
+    <a
+      href="dinamicas"
+      (click)="toggleMenu()"
+      class="block text-gray-700 hover:text-purple-600 py-2"
+      >Promociones</a
+    >
+    <a
+      href="contactanos"
+      (click)="toggleMenu()"
+      class="block text-gray-700 hover:text-purple-600 py-2"
+      >Contáctanos</a
+    >
   </div>
 </nav>

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-navbar',
@@ -7,5 +7,11 @@ import { Component } from '@angular/core';
   styleUrl: './navbar.css'
 })
 export class Navbar {
+  @ViewChild('mobileMenu') mobileMenu!: ElementRef<HTMLDivElement>;
 
+  toggleMenu(): void {
+    if (this.mobileMenu) {
+      this.mobileMenu.nativeElement.classList.toggle('hidden');
+    }
+  }
 }
